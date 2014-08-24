@@ -23,4 +23,4 @@ Completed user stories:
 
 Walkthrough of all user stories:
 
-![Todo-App-1](vvalluri.github.com/codepath-todoapp/codepath-todoapp-1.gif)
+![Todo-App-1](https://github.com/vvalluri/codepath-todoapp/blob/master/codepath-todoapp-1.gif)
