@@ -5,6 +5,8 @@ Todo App for Codepath
 
 This is an Android application for displaying todo list. User can add/modify/delete items from the todo list.
 
+===============================
+
 Completed user stories:
 
  Required: User can view list of todo items
@@ -20,6 +22,9 @@ Completed user stories:
  Optional: Add toast to display edited strings
 
 
+Notes: I am planning to add some enhancements and post a new version soon.
+
+=================================
 
 Walkthrough of all user stories:
 
