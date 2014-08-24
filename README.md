@@ -5,9 +5,6 @@ Todo App for Codepath
 
 This is an Android application for displaying todo list. User can add/modify/delete items from the todo list.
 
-
-Time spent: 5 hours spent in total
-
 Completed user stories:
  Required: User can view list of todo items
  Required: User can add a new item to todo list
