@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/edit_name"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/lbl_todo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" 
+        android:text="Edit Text"/>
+
+    <EditText
+        android:id="@+id/txt_todo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:imeOptions="actionDone"
+        android:inputType="text" 
+        android:textColor="@color/text_color"/>
+
+       <TextView
+        android:id="@+id/lbl_todo_pri"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" 
+        android:text="Edit Priority"/>
+        
+	<RadioGroup
+	    android:id="@+id/radioPriority"
+    	android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"
+    	android:orientation="horizontal">
+    	<RadioButton android:id="@+id/radio_low"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="low"/>
+    	<RadioButton android:id="@+id/radio_med"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="med"/>
+    	<RadioButton android:id="@+id/radio_high"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="high"/>
+	</RadioGroup>
+
+	<TextView
+        android:id="@+id/lbl_todo_due"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" 
+        android:text="Edit Due Date"/>
+    <DatePicker
+        android:id="@+id/dpResult"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:calendarViewShown="false" />
+	    
+</LinearLayout>
