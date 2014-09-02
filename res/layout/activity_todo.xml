@@ -20,7 +20,7 @@
         android:layout_alignParentRight="true"
         android:layout_marginBottom="14dp"
         android:onClick="addTodoItem"
-        android:text="Button" />
+        android:text="Add" />
 
     <EditText
         android:id="@+id/etNewItem"

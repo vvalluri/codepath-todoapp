@@ -1,17 +1,17 @@
 package com.codepath.apps.simpletodolist;
 
-import java.io.File;
-import java.io.IOException;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
+import com.codepath.apps.simpletodolist.DialogEditItem.DialogEditItemListener;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -21,30 +21,45 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-public class TodoActivity extends Activity {
-	ArrayList<String> items;
-	ArrayAdapter<String> itemsAdapter;
+public class TodoActivity extends FragmentActivity implements DialogEditItem.DialogEditItemListener {
+	ArrayList<TodoList> values;
+	listCustomAdapter adapter;
 	ListView lvItems;
 	private final int EditRequestCode = 20;
+	private TodoListDataSource datasource;
+	private int editPosition = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_todo);
+        // Open the SQL DB
+        datasource = new TodoListDataSource(this);
+        datasource.open();
+
         lvItems = (ListView) findViewById(R.id.lvItems);
-        items = new ArrayList<String>();
-        readItems();
-        itemsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
-        lvItems.setAdapter(itemsAdapter);
+        // Get the items from SQL database
+        values = datasource.getAllTodoLists();
+        // Display using custom Adapter
+        adapter = new listCustomAdapter(this, values);
+        lvItems.setAdapter(adapter);
         setupListViewListener();
     }
     
+    // Add new item to Todo list
     public void addTodoItem(View v) {
+    	TodoList item = null;
     	EditText etNewItem = (EditText) findViewById(R.id.etNewItem);
-    	itemsAdapter.add(etNewItem.getText().toString());
     	Toast.makeText(this, etNewItem.getText().toString(), Toast.LENGTH_SHORT).show();
+        // Set current date as default duedate
+		final Calendar c = Calendar.getInstance();
+		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+		String currentDate = formatter.format(c.getTime());
+        // save the new item to the database
+        item = datasource.createTodoList(etNewItem.getText().toString(), 0, currentDate);
+        values.add(item);
+	    adapter.notifyDataSetChanged();
     	etNewItem.setText("");
-    	saveItems();
     	
     }
     
@@ -53,9 +68,11 @@ public class TodoActivity extends Activity {
     		@Override
     		public boolean onItemLongClick(AdapterView<?> parent,
     				View view, int position, long rowId) {
-    			items.remove(position);
-    			itemsAdapter.notifyDataSetChanged();
-    			saveItems();
+    			TodoList item = values.get(position);
+    	        datasource.deleteTodoList(item);
+    	        values.remove(position);
+    	        // Delete from SQLite DB
+    	        adapter.notifyDataSetChanged();
     			return true;
     		}
     	});
@@ -64,49 +81,38 @@ public class TodoActivity extends Activity {
     		@Override
     		public void onItemClick(AdapterView<?> parent,
     				View view, int position, long rowId) {
-    			Intent i = new Intent(TodoActivity.this, EditItemActivity.class);
-    			String listItem = items.get(position);
-    			i.putExtra("listitem", listItem);
-    			i.putExtra("listposition", position);
-    			startActivityForResult(i, EditRequestCode);
+    			// Start the DialogFragment to edit items
+    			TodoList item = values.get(position);
+    			editPosition = position;
+    			showEditDialog(item.getItem(), editPosition, item.getDuedate(), item.getPriImageNumber());
     		}
     	});
     }
     
-    private void readItems() {
-    	File filesDir = getFilesDir();
-    	File todoFile = new File(filesDir, "todo1.txt");
-    	try {
-    		List<String> tmplist = FileUtils.readLines(todoFile);
-    		items = new ArrayList<String>(tmplist);
-    	} catch (IOException e) {
-    		items = new ArrayList<String>();
-    		e.printStackTrace();
-    	}
+    private void showEditDialog(String edittext, int pos, String date, int prio) {
+        FragmentManager fm = getSupportFragmentManager();
+        DialogEditItem editItem = new DialogEditItem();
+        Bundle args = new Bundle();
+        // Pass the current item values to DialogFragment
+        args.putInt("pos", pos);
+        args.putString("text", edittext);
+        args.putString("date", date);
+        args.putInt("priority",  prio);
+        editItem.setArguments(args);
+        editItem.show(fm, "fragment_edit_text");
     }
-    
-    private void saveItems() {
-    	File filesDir = getFilesDir();
-    	File todoFile = new File(filesDir, "todo1.txt");
-    	try {
-    		FileUtils.writeLines(todoFile, items);
-    	} catch (IOException e) {
-    		e.printStackTrace();
-    	}
+
+
+    public void onFinishEditDialog(String inputText, int position, int prio, String duedate) {
+        Toast.makeText(this, "Hi, " + inputText, Toast.LENGTH_SHORT).show();
+		TodoList item = values.get(position);
+		// Update list item
+	    item.setItem(inputText);
+	    item.setPriImageNum(prio);
+	    item.setDuedate(duedate);
+	    // Update SQLite DB
+	    datasource.updateTodoList(item);
+	    // Notify adapter
+        adapter.notifyDataSetChanged();
     }
-    
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-      if (resultCode == RESULT_OK && requestCode == EditRequestCode) {
-         // Extract name value from result extras
-         String newText = data.getExtras().getString("newEditText");
-         int Position = data.getExtras().getInt("newEditPosition");
-         // Toast the name to display temporarily on screen
-         Toast.makeText(this, newText, Toast.LENGTH_SHORT).show();
-         items.remove(Position);
-         items.add(Position, newText);
-         itemsAdapter.notifyDataSetChanged();
-         saveItems();
-      }
-    } 
 }
